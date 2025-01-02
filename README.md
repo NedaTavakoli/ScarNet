@@ -81,17 +81,6 @@ The multi-component loss function is defined as:
    python train_scar_net.py
    ```
 
-## Citation
-If you use ScarNet in your research, please cite the following paper:
-```bibtex
-@article{tavakoli2024scarnet,
-  title={ScarNet: A Novel Foundation Model for Automated Myocardial Scar Quantification from LGE in Cardiac MRI},
-  author={Neda Tavakoli et al.},
-  journal={arXiv},
-  year={2025}
-}
-```
-
 ## License
 This project is licensed under the MIT License.
 
