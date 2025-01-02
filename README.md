@@ -1,5 +1,5 @@
 
-# ScarNet: A Novel Foundation Model for Automated Myocardial Scar Quantification
+# ScarNet: A Novel Foundation Model for Automated Myocardial Scar Quantification from LGE in Cardiac MRI
 
 ## Overview
 ScarNet is a deep learning model specifically designed for automated myocardial scar segmentation and quantification in Late Gadolinium Enhancement (LGE) Cardiac MRI. By leveraging a hybrid architecture that integrates MedSAM's Vision Transformer (ViT)-based encoder with a U-Net decoder, ScarNet achieves state-of-the-art performance in scar segmentation and quantification, significantly surpassing existing methods like MedSAM and nnU-Net.
@@ -27,28 +27,28 @@ ScarNet is a deep learning model specifically designed for automated myocardial 
 ### Model Architecture
 **Figure 1:** Hybrid architecture combining MedSAM's ViT-based encoder with U-Net's multi-scale decoder. This figure highlights ScarNet's integration of attention mechanisms for precise scar segmentation.
 
-![Figure 1](ScarNet/figures/Figure1.png)
+![Figure 1](ScarNet/figures/Fig1.png)
 
 **Figure 2:** Detailed encoder-decoder overview, showcasing attention blocks and SE layers that enhance feature extraction and refine scar segmentation.
 
-![Figure 2](ScarNet/figures/Figure2.png)
+![Figure 2](ScarNet/figures/Fig2.png)
 
 ### Comparative Analysis
 **Figure 3:** Comparative visualization of ScarNet, MedSAM, and nnU-Net segmentations. ScarNet demonstrates superior segmentation accuracy across different cardiac regions.
 
-![Figure 3](ScarNet/figures/Figure3.png)
+![Figure 3](ScarNet/figures/Fig3.png)
 
 **Figure 4:** Performance analysis across varying training data sizes. ScarNet consistently outperforms MedSAM and nnU-Net in both myocardium and scar segmentation.
 
-![Figure 4](ScarNet/figures/Figure4.png)
+![Figure 4](ScarNet/figures/Fig4.png)
 
 **Figure 5:** Representative test cases demonstrating ScarNet's segmentation performance compared to MedSAM and nnU-Net.
 
-![Figure 5](ScarNet/figures/Figure5.png)
+![Figure 5](ScarNet/figures/Fig5.png)
 
 **Figure 6:** Performance metrics for scar volume quantification, including Bland-Altman plots and correlation analyses. ScarNet achieves near-perfect correlation with manual segmentation.
 
-![Figure 6](ScarNet/figures/Figure6.png)
+![Figure 6](ScarNet/figures/Fig6.png)
 
 ## Methodology
 ### Dataset
