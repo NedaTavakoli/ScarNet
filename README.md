@@ -27,28 +27,28 @@ ScarNet is a deep learning model specifically designed for automated myocardial 
 ### Model Architecture
 **Figure 1:** Hybrid architecture combining MedSAM's ViT-based encoder with U-Net's multi-scale decoder. This figure highlights ScarNet's integration of attention mechanisms for precise scar segmentation.
 
-![Figure 1](ScarNet/figures/Fig1)
+![Figure 1](figures/Fig1.png)
 
 **Figure 2:** Detailed encoder-decoder overview, showcasing attention blocks and SE layers that enhance feature extraction and refine scar segmentation.
 
-![Figure 2](ScarNet/figures/Fig2)
+![Figure 2](figures/Fig2.png)
 
 ### Comparative Analysis
 **Figure 3:** Comparative visualization of ScarNet, MedSAM, and nnU-Net segmentations. ScarNet demonstrates superior segmentation accuracy across different cardiac regions.
 
-![Figure 3](ScarNet/figures/Fig3)
+![Figure 3](figures/Fig3.png)
 
 **Figure 4:** Performance analysis across varying training data sizes. ScarNet consistently outperforms MedSAM and nnU-Net in both myocardium and scar segmentation.
 
-![Figure 4](ScarNet/figures/Fig4)
+![Figure 4](figures/Fig4.png)
 
 **Figure 5:** Representative test cases demonstrating ScarNet's segmentation performance compared to MedSAM and nnU-Net.
 
-![Figure 5](ScarNet/figures/Fig5)
+![Figure 5](figures/Fig5.png)
 
 **Figure 6:** Performance metrics for scar volume quantification, including Bland-Altman plots and correlation analyses. ScarNet achieves near-perfect correlation with manual segmentation.
 
-![Figure 6](ScarNet/figures/Fig6)
+![Figure 6](figures/Fig6.png)
 
 ## Methodology
 ### Dataset
