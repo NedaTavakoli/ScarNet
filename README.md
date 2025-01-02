@@ -88,7 +88,7 @@ If you use ScarNet in your research, please cite the following paper:
   title={ScarNet: A Novel Foundation Model for Automated Myocardial Scar Quantification from LGE in Cardiac MRI},
   author={Neda Tavakoli et al.},
   journal={arXiv},
-  year={2024}
+  year={2025}
 }
 ```
 
