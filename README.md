@@ -98,7 +98,10 @@ pip install -r requirements.txt
 
 3. Run training:
 ```bash
-python train_scar_net.py
+python train.py
+
+# With custom config
+python train.py --config path/to/config.yaml
 ```
 
 ### Data Preparation
