@@ -49,9 +49,27 @@ python train.py --config config.yaml
 ```
 
 ### Inference
+
+#### Batch Processing
 ```bash
-python inference.py --input_dir /path/to/images --output_dir /path/to/results
+# Process entire directory
+python inference.py --input_dir /path/to/images --output_dir /path/to/results --model_path models/scarnet_best.pth
+
+# With custom configuration
+python inference.py --input_dir /path/to/images --output_dir /path/to/results --model_path models/scarnet_best.pth --config config.yaml
 ```
+
+#### Single Image Processing
+```bash
+python inference.py --single_image /path/to/image.png --output_dir /path/to/results --model_path models/scarnet_best.pth
+```
+
+#### Additional Options
+```bash
+# Specify device and threshold
+python inference.py --input_dir /path/to/images --output_dir /path/to/results --model_path models/scarnet_best.pth --device cuda --threshold 0.6 --batch_size 4
+```
+
 
 ### Configuration Example
 ```yaml
