@@ -6,7 +6,7 @@
 ScarNet is a deep learning model for automated myocardial scar segmentation in Late Gadolinium Enhancement (LGE) Cardiac MRI. It combines MedSAM's Vision Transformer encoder with a U-Net decoder for precise scar boundary detection.
 
 ## Demo
-https://github.com/NedaTavakoli/ScarNet/figures/sample.mov
+![ScarNet Demo](figures/sample.gif)
 
 ## Architecture
 ![ScarNet Architecture](figures/Fig1.png)
