@@ -10,10 +10,11 @@ from pathlib import Path
 import argparse
 from datetime import datetime
 
-from scarnet.models.scarnet import ScarNet
-from scarnet.data.dataset import CardiacDataset
-from scarnet.utils.visualization import Visualizer
-from scarnet.config import Config
+from models.scarnet import ScarNet
+from data.dataset import CardiacDataset
+from utils.visualization import Visualizer
+from utils.losses import CombinedLoss, WeightedCombinedLoss
+from config import Config
 
 def parse_args():
     """Parse command line arguments."""
@@ -41,10 +42,11 @@ def compute_dice_score(pred, target, class_index):
     dice = (2. * intersection + 1e-8) / (union + 1e-8)
     return dice.item()
 
-def train_epoch(model, loader, optimizer, scaler, device, config):
+def train_epoch(model, loader, optimizer, scaler, device, config, criterion):
     """Train for one epoch."""
     model.train()
     total_loss = 0
+    loss_components = {'focal_tversky': [], 'dice': [], 'cross_entropy': [], 'combined': []}
     dice_scores = {i: [] for i in range(4)}  # For 4 classes
     
     pbar = tqdm(loader, desc='Training')
@@ -54,7 +56,7 @@ def train_epoch(model, loader, optimizer, scaler, device, config):
         # Mixed precision training
         with autocast(enabled=config.training.use_amp):
             out = model(x)
-            loss = nn.CrossEntropyLoss()(out, y.squeeze(1))
+            loss, loss_dict = criterion(out, y.squeeze(1))
 
         # Scale loss and compute gradients
         scaler.scale(loss).backward()
@@ -71,16 +73,24 @@ def train_epoch(model, loader, optimizer, scaler, device, config):
             dice = compute_dice_score(pred, y.squeeze(1), class_idx)
             dice_scores[class_idx].append(dice)
         
+        # Track loss components
+        for key, value in loss_dict.items():
+            if key in loss_components:
+                loss_components[key].append(value)
+        
         total_loss += loss.item()
         
-        # Update progress bar
+        # Update progress bar with detailed loss information
         pbar.set_postfix({
             'loss': total_loss / (batch_idx + 1),
-            'scar_dice': np.mean(dice_scores[3])  # Class 3 is scar
+            'scar_dice': np.mean(dice_scores[3]),  # Class 3 is scar
+            'ft_loss': np.mean(loss_components['focal_tversky'][-10:]) if loss_components['focal_tversky'] else 0,
+            'dice_loss': np.mean(loss_components['dice'][-10:]) if loss_components['dice'] else 0
         })
 
     return {
         'loss': total_loss / len(loader),
+        'loss_components': {k: np.mean(v) for k, v in loss_components.items()},
         'dice_scores': {k: np.mean(v) for k, v in dice_scores.items()}
     }
 
@@ -155,6 +165,35 @@ def main():
         num_classes=config.model.num_classes
     ).to(device)
     
+    # Setup loss function
+    if config.loss.use_class_weights and config.loss.class_weights:
+        class_weights = torch.tensor(config.loss.class_weights, dtype=torch.float32).to(device)
+    else:
+        class_weights = None
+    
+    # Choose between standard and weighted combined loss
+    if config.loss.adaptive_weights:
+        criterion = WeightedCombinedLoss(
+            lambda1=config.loss.lambda1,
+            lambda2=config.loss.lambda2,
+            lambda3=config.loss.lambda3,
+            class_weights=class_weights,
+            adaptive_weights=True
+        )
+    else:
+        criterion = CombinedLoss(
+            lambda1=config.loss.lambda1,
+            lambda2=config.loss.lambda2,
+            lambda3=config.loss.lambda3,
+            focal_alpha=config.loss.focal_alpha,
+            focal_beta=config.loss.focal_beta,
+            focal_gamma=config.loss.focal_gamma,
+            dice_smooth=config.loss.dice_smooth,
+            ce_weight=class_weights
+        )
+    
+    logging.info(f'Using combined loss with weights: λ1={config.loss.lambda1}, λ2={config.loss.lambda2}, λ3={config.loss.lambda3}')
+    
     # Setup optimizer and scaler
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -215,7 +254,7 @@ def main():
         logging.info(f'\nEpoch {epoch+1}/{config.training.epochs}')
         
         # Train
-        train_metrics = train_epoch(model, train_loader, optimizer, scaler, device, config)
+        train_metrics = train_epoch(model, train_loader, optimizer, scaler, device, config, criterion)
         
         # Validate
         val_metrics = validate(
@@ -225,9 +264,12 @@ def main():
             epoch=epoch
         )
         
-        # Log metrics
+        # Log metrics with detailed loss breakdown
         logging.info(
-            f'Train Loss: {train_metrics["loss"]:.4f}, '
+            f'Train Loss: {train_metrics["loss"]:.4f} '
+            f'(FT: {train_metrics["loss_components"]["focal_tversky"]:.4f}, '
+            f'Dice: {train_metrics["loss_components"]["dice"]:.4f}, '
+            f'CE: {train_metrics["loss_components"]["cross_entropy"]:.4f}), '
             f'Train Scar Dice: {train_metrics["dice_scores"][3]:.4f}, '
             f'Val Scar Dice: {val_metrics[3]:.4f}'
         )

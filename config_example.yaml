@@ -1,0 +1,51 @@
+model:
+  architecture: "ScarNet"
+  num_classes: 4
+  pretrained_path: "medsam_vit_b.pth"
+  freeze_encoder: false
+  image_size: [128, 128]
+  in_channels: 1
+
+training:
+  batch_size: 16
+  num_workers: 6
+  epochs: 100
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  use_amp: true
+  accumulation_steps: 4
+
+data:
+  data_path: "../Segmentation_LGE/Data"
+  train_path: "Training"
+  test_path: "Testing"
+  normalize: true
+  augment: true
+
+loss:
+  # Loss function weights (should sum to 1.0 for optimal balance)
+  lambda1: 0.5  # Focal Tversky Loss weight
+  lambda2: 0.4  # DICE Loss weight  
+  lambda3: 0.1  # Cross-Entropy Loss weight
+  
+  # Focal Tversky Loss parameters
+  focal_alpha: 0.7  # weight for false positives
+  focal_beta: 0.3   # weight for false negatives  
+  focal_gamma: 1.0  # focal parameter (higher = more focus on hard examples)
+  
+  # DICE Loss parameters
+  dice_smooth: 0.000001  # smoothing factor to avoid division by zero
+  
+  # Cross-Entropy Loss parameters
+  use_class_weights: true
+  class_weights: [0.1, 0.3, 0.3, 0.3]  # [background, myocardium, blood_pool, scar]
+  
+  # Adaptive loss settings
+  adaptive_weights: true  # Automatically increase scar loss weight when scar is present
+
+# Logging and checkpoints
+checkpoint_dir: "checkpoints"
+log_dir: "logs"
+save_frequency: 5
+visualize_results: true
+max_visualizations: 10

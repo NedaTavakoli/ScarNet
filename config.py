@@ -21,6 +21,28 @@ class ModelConfig:
     unet_levels: int = 4
 
 @dataclass
+class LossConfig:
+    # Loss function weights
+    lambda1: float = 0.5  # Focal Tversky Loss weight
+    lambda2: float = 0.4  # DICE Loss weight  
+    lambda3: float = 0.1  # Cross-Entropy Loss weight
+    
+    # Focal Tversky Loss parameters
+    focal_alpha: float = 0.7  # weight for false positives
+    focal_beta: float = 0.3   # weight for false negatives
+    focal_gamma: float = 1.0  # focal parameter
+    
+    # DICE Loss parameters
+    dice_smooth: float = 1e-6
+    
+    # Cross-Entropy Loss parameters
+    use_class_weights: bool = True
+    class_weights: Optional[Tuple[float, ...]] = (0.1, 0.3, 0.3, 0.3)  # background, myocardium, blood pool, scar
+    
+    # Adaptive loss settings
+    adaptive_weights: bool = True
+
+@dataclass
 class TrainingConfig:
     # Basic training settings
     batch_size: int = 1
@@ -66,6 +88,7 @@ class Config:
     model: ModelConfig = ModelConfig()
     training: TrainingConfig = TrainingConfig()
     data: DataConfig = DataConfig()
+    loss: LossConfig = LossConfig()
     
     # Logging and checkpoints
     checkpoint_dir: str = "checkpoints"
@@ -87,15 +110,30 @@ class Config:
         return cls(
             ModelConfig(**config_dict.get('model', {})),
             TrainingConfig(**config_dict.get('training', {})),
-            DataConfig(**config_dict.get('data', {}))
+            DataConfig(**config_dict.get('data', {})),
+            LossConfig(**config_dict.get('loss', {}))
         )
+    
+    def from_yaml(self, yaml_path: str):
+        """Load configuration from YAML file."""
+        import yaml
+        with open(yaml_path, 'r') as f:
+            config_dict = yaml.safe_load(f)
+        
+        # Update current instance with loaded values
+        loaded_config = self.from_dict(config_dict)
+        self.model = loaded_config.model
+        self.training = loaded_config.training
+        self.data = loaded_config.data
+        self.loss = loaded_config.loss
 
     def to_dict(self) -> dict:
         """Convert config to dictionary."""
         return {
             'model': self.model.__dict__,
             'training': self.training.__dict__,
-            'data': self.data.__dict__
+            'data': self.data.__dict__,
+            'loss': self.loss.__dict__
         }
 
 # Default configuration instance
