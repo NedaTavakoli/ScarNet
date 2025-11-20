@@ -86,3 +86,5 @@ loss:
   lambda2: 0.4  # DICE Loss  
   lambda3: 0.1  # Cross-Entropy Loss
 ```
+
+Copyright © 2025 by Northwestern University. All Rights Reserved.
